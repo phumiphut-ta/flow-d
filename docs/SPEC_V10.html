@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flow-D: Master Project Specification & Architecture Blueprint (v10)</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #2563eb;
+      --secondary: #0f172a;
+      --line-green: #06c755;
+      --line-green-dark: #059669;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #334155;
+      --text-dark: #0f172a;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --purple: #7c3aed;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Sarabun", "Prompt", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 30px 16px;
+    }
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 60%, #064e3b 100%);
+      color: white;
+      padding: 36px 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+      margin-bottom: 28px;
+    }
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header p {
+      font-size: 1.05rem;
+      color: #cbd5e1;
+      max-width: 900px;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .badge.line {
+      background-color: var(--line-green);
+      border-color: var(--line-green);
+      color: white;
+    }
+    .badge.purple {
+      background-color: var(--purple);
+      border-color: var(--purple);
+      color: white;
+    }
+    .badge.amber {
+      background-color: var(--warning);
+      border-color: var(--warning);
+      color: white;
+    }
+    .section-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+    .section-card h2 {
+      color: var(--primary);
+      font-size: 1.35rem;
+      font-weight: 700;
+      border-bottom: 2px solid #eff6ff;
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-card h3 {
+      font-size: 1.05rem;
+      color: var(--text-dark);
+      margin: 18px 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+    tr:nth-child(even) td {
+      background-color: #fcfcfd;
+    }
+    ul, ol {
+      margin-left: 22px;
+      margin-bottom: 12px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      margin: 10px 0 16px 0;
+      line-height: 1.5;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    .prompt-box {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary-light);
+      padding: 18px 20px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 14px;
+    }
+    .prompt-box h4 {
+      color: var(--primary);
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-green { background: #dcfce7; color: #15803d; }
+    .tag-amber { background: #fef3c7; color: #92400e; }
+    .tag-purple { background: #f3e8ff; color: #6b21a8; }
+    .tag-red { background: #fee2e2; color: #991b1b; }
+
+    /* Mockups */
+    .mock-container {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 20px;
+      max-width: 480px;
+      margin: 16px 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+    .round-tabs {
+      display: flex;
+      gap: 6px;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .round-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 6px;
+      color: #64748b;
+    }
+    .round-tab.active {
+      background: #ffffff;
+      color: #1e3a8a;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+      margin-top: 10px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: #cbd5e1;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 22px;
+    }
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -28px;
+      top: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #94a3b8;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 0 1px #cbd5e1;
+    }
+    .timeline-item.done .timeline-dot {
+      background: #3b82f6;
+    }
+    .timeline-item.active .timeline-dot {
+      background: var(--line-green);
+      box-shadow: 0 0 0 4px rgba(6, 199, 85, 0.25);
+    }
+    .timeline-content h4 {
+      font-size: 0.95rem;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .timeline-content .meta {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .timeline-content .updater {
+      font-size: 0.8rem;
+      color: #1e3a8a;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span>🖥️</span> Flow-D: Master Architecture & Project Blueprint (v10)</h1>
+      <p>ระบบบริหารเส้นทางและติดตามหนังสือเข้า-ออก (Flowing Document Routing & History Log) ออกแบบ <strong>เน้นใช้งานบน PC เป็นหลัก (Desktop-First High Density UI)</strong> พร้อมระบบป้องกันการกดปุ่มเบิ้ล <strong>(Anti-Double Click / Debounce & Server Idempotency)</strong> ครบวงจร</p>
+      <div class="badge-bar">
+        <span class="badge amber">Anti-Double Click (Debounce & Lock)</span>
+        <span class="badge purple">PC Desktop-First High Density</span>
+        <span class="badge">Same-day Single Undo (Admin Recovery)</span>
+        <span class="badge line">LINE LIFF Mobile Companion</span>
+        <span class="badge">PHP 8.3.36 / PHP 8.5</span>
+        <span class="badge">Laravel 11+</span>
+        <span class="badge">Windows Server IIS + FastCGI</span>
+        <span class="badge">Thai Buddhist Era (พ.ศ.)</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1: PC DESKTOP-FIRST INTERFACE DESIGN -->
+    <div class="section-card">
+      <h2>1. การออกแบบ Interface สำหรับ PC Desktop เป็นหลัก (PC-First Architecture)</h2>
+      <p>เนื่องจากผู้ปฏิบัติงานหลัก (Staff & Admin) นั่งทำงานหน้าจอคอมพิวเตอร์ Desktop ระบบจึงออกแบบ Layout ให้ใช้ประโยชน์จากจอแนวกว้าง (Widescreen 1080p+) ได้เต็มพื้นที่ ไม่ต้องเลื่อนจอไปมา:</p>
+      <ul>
+        <li><strong>High-Density Data Grid (ตารางความหนาแน่นสูง):</strong>
+          <ul>
+            <li>แสดงตารางสมุดคุมและรายการค้างในหน้าจอเดียว ปรับขนาด Row ให้กระชับ สบายตา พร้อมแถบ Sticky Header ค้างหัวตารางขณะเลื่อนดู</li>
+            <li>แสดงคอลัมน์สำคัญครบถ้วน: <code>[ ] Checkbox</code>, <code>เลขรับ</code>, <code>วันที่ลงหนังสือ (พ.ศ.)</code>, <code>Route</code>, <code>ขั้นตอนปัจจุบัน</code>, <code>เวลาที่ค้าง</code>, <code>ผู้ถือล่าสุด</code>, <code>ปุ่ม Action</code></li>
+          </ul>
+        </li>
+        <li><strong>Dual-Pane Intake & Worklist (หน้าจอแบ่ง 2 ฝั่ง สะดวกต่อการคีย์):</strong>
+          <ul>
+            <li><strong>ฝั่งซ้าย (30%):</strong> ฟอร์มรับหนังสือเข้าด่วน กรอกเพียง <code>doc_number</code> + <code>doc_date</code> + เลือก <code>Route</code> แล้วกด Enter เพื่อบันทึกทันที</li>
+            <li><strong>ฝั่งขวา (70%):</strong> ตารางหนังสือที่อยู่ระหว่างทาง (In Progress Worklist) กรองตาม Route ได้ทันที เห็นความเคลื่อนไหวอัปเดตสด</li>
+          </ul>
+        </li>
+        <li><strong>Keyboard Navigation & Shortcuts (ทำงานได้โดยแทบไม่ต้องจับเมาส์):</strong>
+          <ul>
+            <li>กด <code>Alt + N</code> เพื่อโฟกัสที่ช่องเลขรับหนังสือทันที</li>
+            <li>ในฟอร์มรับเข้า กด <code>Enter</code> เพื่อบันทึกรับเข้าทันที</li>
+            <li>กด <code>/</code> เพื่อโฟกัสช่องค้นหาเลขรับด่วน</li>
+          </ul>
+        </li>
+        <li><strong>Batch Action Toolbar:</strong> เมื่อเลือก Checkbox บนแถวตาราง แถบเครื่องมือจะแสดงปุ่มแอ็กชันขนาดใหญ่ชัดเจน: <strong>[ ติ๊กออกทั้งชุด ]</strong> และ <strong>[ ส่งต่อขั้นตอนถัดไปทั้งชุด ]</strong></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 2: ANTI-DOUBLE CLICK & IDEMPOTENCY SYSTEM -->
+    <div class="section-card">
+      <h2>2. สถาปัตยกรรมป้องกันการกดเบิ้ล (Anti-Double Click / Idempotent System)</h2>
+      <p>เพื่อตัดปัญหา Staff มือไว ดับเบิ้ลคลิกปุ่ม หรืออินเทอร์เน็ตหน่วงแล้วกดย้ำๆ จนเกิดรายการซ้ำ Flow-D ป้องกันอย่างรัดกุมทั้งฝั่ง Frontend และ Backend:</p>
+
+      <h3>2.1 ฝั่ง Frontend UI (Immediate Button Lock & Feedback)</h3>
+      <ul>
+        <li><strong>Instant Button Disabling:</strong> ทันทีที่ผู้ใช้คลิกปุ่ม (เช่น ปุ่มรับเข้า, ปุ่มติ๊กออก, ปุ่มส่งต่อ, หรือปุ่ม Batch) ปุ่มจะถูก <code>disabled = true</code> ทันทีใน Millisecond แรก</li>
+        <li><strong>Loading Spinner & Text Feedback:</strong> เปลี่ยนข้อความปุ่มทันที เช่น จาก <em>"ติ๊กออก"</em> เป็น <em>"⏳ กำลังบันทึก..."</em> พร้อมแสดง Loading Icon เพื่อให้ผู้ใช้ทราบว่าระบบกำลังทำงาน</li>
+        <li><strong>Global Form Submitting Blocker:</strong> เมื่อกด Submit ฟอร์มใดๆ เบราว์เซอร์จะบล็อกการกด Submit ซ้ำจนกว่า Request จะได้คำตอบ (HTTP Response) จาก Server กลับมา</li>
+      </ul>
+
+      <h3>2.2 ฝั่ง Backend Controller & Database (Atomic Lock & Idempotency)</h3>
+      <ul>
+        <li><strong>Pessimistic Lock (`lockForUpdate`):</strong> เมื่อมีการติ๊กออกหรือส่งต่อขั้นตอน ระบบจะสั่ง <code>DocumentMovement::where('id', $id)->lockForUpdate()->first()</code> ในระดับ Database Transaction
+          <pre><code>DB::transaction(function () use ($movementId, $userId) {
+    $movement = DocumentMovement::where('id', $movementId)->lockForUpdate()->first();
+    
+    // ตรวจสอบทันทีว่าถูกติ๊กออกไปแล้วหรือยัง
+    if ($movement->is_returned) {
+        return response()->json(['status' => 'already_processed', 'message' => 'รายการนี้ถูกดำเนินการไปแล้ว']);
+    }
+
+    $movement->update([
+        'out_datetime'   => now(),
+        'out_by_user_id' => $userId,
+        'is_returned'    => true
+    ]);
+});</code></pre>
+        </li>
+        <li><strong>Idempotent Response:</strong> หากมี Request ที่สองหลุดเข้ามาพร้อมกันจาก Network Lag ระบบจะไม่บันทึกซ้ำ แต่จะคืนค่าสถานะสำเร็จเดิมกลับไป โดยไม่มีข้อผิดพลาดเกิดขึ้นในฐานข้อมูล</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 3: ADMIN RECOVERY (SAME-DAY SINGLE UNDO) -->
+    <div class="section-card">
+      <h2>3. ข้อกำหนดทางเทคนิค: Admin Recovery (Same-day Single Undo)</h2>
+      <p>กรณีเกิดข้อผิดพลาดจริงจาก Human Error (เช่น หยิบแฟ้มผิดเล่มมากด) Admin สามารถกู้คืนได้ตามเกณฑ์ 4 ข้อ:</p>
+      <ol>
+        <li><strong>Single Step Undo Only:</strong> ย้อนได้เฉพาะ <strong>1 ขั้นตอนล่าสุด</strong> เท่านั้น</li>
+        <li><strong>Same-day Restriction:</strong> ต้องทำรายการกู้คืน <strong>ภายในวันเดียวกัน (`DATE(action_datetime) == today()`)</strong> หากข้ามวันไปแล้ว ระบบจะล็อกสถานะถาวรเพื่อรักษายอดรายงานสมุดคุมประจำวัน</li>
+        <li><strong>Role-based Authorization:</strong> ปุ่ม Recovery จะแสดงและทำงานเฉพาะเมื่อผู้ใช้งานมีสิทธิ์ <code>role = 'admin'</code> เท่านั้น</li>
+        <li><strong>Audit Logging & Reason Prompt:</strong> เมื่อ Admin กดย้อนขั้นตอน ระบบจะแสดง Dialog บังคับให้ <strong>ระบุเหตุผลในการกู้คืน</strong> และบันทึกลง <code>activity_logs</code> ทุกครั้ง</li>
+      </ol>
+    </div>
+
+    <!-- SECTION 4: LINE LIFF MOBILE COMPANION -->
+    <div class="section-card">
+      <h2>4. หน้าจอเสริมบนมือถือ: LINE LIFF Parcel Tracking</h2>
+      <p>ในขณะที่เจ้าหน้าที่ทำงานหลักบนจอ PC ระบบมีหน้าจอเสริมบนสมาร์ตโฟนผ่าน LINE LIFF สำหรับผู้บริหารหรือผู้ปฏิบัติงานที่ต้องการตรวจสอบสถานะหนังสือระหว่างเดินเรื่อง:</p>
+
+      <div class="mock-container">
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px;">
+          <div style="font-size: 0.85rem; color: #64748b;">สถานะหนังสือเลขรับ</div>
+          <div style="font-size: 1.45rem; font-weight: 800; color: #1e3a8a;">123/69</div>
+          <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;">ลงวันที่: 28 ต.ค. 2569</div>
+        </div>
+
+        <!-- แท็บสลับรอบ -->
+        <div class="round-tabs">
+          <div class="round-tab">รอบที่ 1 (เสร็จสิ้น) ✓</div>
+          <div class="round-tab active">รอบที่ 2 (ปัจจุบัน) 🟢</div>
+        </div>
+
+        <div style="margin-bottom: 12px; font-size: 0.85rem; font-weight: 600; color: #0f172a;">
+          เส้นทาง: <span class="tag-badge tag-blue">รับหนังสือ-หอบ.-สารบรรณ-ส่งออก</span>
+        </div>
+
+        <!-- Timeline สไตล์พัสดุ -->
+        <div class="timeline">
+          <div class="timeline-item done">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h4>1. รับหนังสือเข้าระบบ (รอบ 2)</h4>
+              <div class="meta">📅 29/10/2569 09:15 น.</div>
+              <div class="updater">👤 ผู้บันทึก: นายสมชาย (สารบรรณ)</div>
+            </div>
+          </div>
+
+          <div class="timeline-item active">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h4>2. หอบ. (พิจารณา/ลงนาม)</h4>
+              <div class="meta">📅 29/10/2569 10:30 น. (ค้างอยู่ 4 ชม.)</div>
+              <div class="updater">👤 ผู้ส่งต่อ: นายสมชาย (สารบรรณ)</div>
+              <div style="margin-top: 4px;"><span class="tag-badge tag-green">📍 ตำแหน่งปัจจุบัน</span></div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h4 style="color: #94a3b8;">3. สารบรรณ (ดำเนินการต่อ)</h4>
+              <div class="meta">⏳ รอดำเนินการ</div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <h4 style="color: #94a3b8;">4. ส่งออกหนังสือ (สิ้นสุดกระบวนการ)</h4>
+              <div class="meta">⏳ รอดำเนินการ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: COMPLETE DATABASE SCHEMA -->
+    <div class="section-card">
+      <h2>5. โครงสร้างฐานข้อมูลฉบับสมบูรณ์ (Database Schema v10)</h2>
+
+      <h3>5.1 ตาราง <code>users</code></h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Index / Constraint</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td>BIGINT (PK)</td><td>Auto Increment</td><td>รหัสผู้ใช้</td></tr>
+        <tr><td><code>username</code></td><td>VARCHAR(50)</td><td>UNIQUE</td><td>ชื่อผู้ใช้สำหรับล็อกอิน</td></tr>
+        <tr><td><code>name</code></td><td>VARCHAR(150)</td><td>-</td><td>ชื่อ-นามสกุล / ตำแหน่ง</td></tr>
+        <tr><td><code>password</code></td><td>VARCHAR(255)</td><td>-</td><td>รหัสผ่าน Bcrypt Hash</td></tr>
+        <tr><td><code>role</code></td><td>VARCHAR(20)</td><td>DEFAULT 'staff'</td><td>'admin' หรือ 'staff'</td></tr>
+        <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>DEFAULT true</td><td>สถานะเปิดใช้งาน</td></tr>
+        <tr><td><code>remember_token</code></td><td>VARCHAR(100)</td><td>NULLABLE</td><td>Token สำหรับ Remember Me</td></tr>
+        <tr><td><code>timestamps</code></td><td>TIMESTAMP</td><td>NULLABLE</td><td>created_at, updated_at</td></tr>
+      </table>
+
+      <h3>5.2 ตาราง <code>registered_devices</code> (ทะเบียนเครื่องที่ใช้งาน)</h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Index / Constraint</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td>BIGINT (PK)</td><td>Auto Increment</td><td>รหัสเครื่อง</td></tr>
+        <tr><td><code>device_token</code></td><td>VARCHAR(64)</td><td>UNIQUE</td><td>รหัส UUID ประจำเครื่องจาก Cookie</td></tr>
+        <tr><td><code>device_name</code></td><td>VARCHAR(150)</td><td>NULLABLE</td><td>ชื่อเครื่อง/โต๊ะทำงานที่ Admin ตั้ง</td></tr>
+        <tr><td><code>last_ip_address</code></td><td>VARCHAR(45)</td><td>NULLABLE</td><td>IP Address ล่าสุดที่พบ</td></tr>
+        <tr><td><code>last_user_agent</code></td><td>TEXT</td><td>NULLABLE</td><td>User-Agent ของเบราว์เซอร์/OS</td></tr>
+        <tr><td><code>last_seen_at</code></td><td>DATETIME</td><td>NULLABLE</td><td>วันเวลาที่ใช้งานล่าสุด</td></tr>
+        <tr><td><code>timestamps</code></td><td>TIMESTAMP</td><td>NULLABLE</td><td>created_at, updated_at</td></tr>
+      </table>
+
+      <h3>5.3 ตาราง <code>routes</code> (จัดการเส้นทางเดินเอกสาร)</h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Index / Constraint</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td>BIGINT (PK)</td><td>Auto Increment</td><td>รหัสเส้นทาง</td></tr>
+        <tr><td><code>route_name</code></td><td>VARCHAR(255)</td><td>UNIQUE</td><td>เช่น 'ผบป.อบ.-หอบ.' หรือ 'รับหนังสือ-หอบ.-สารบรรณ-ส่งออก'</td></tr>
+        <tr><td><code>steps_json</code></td><td>JSON / TEXT</td><td>NULLABLE</td><td>ขั้นตอนย่อย (Array JSON)</td></tr>
+        <tr><td><code>description</code></td><td>VARCHAR(255)</td><td>NULLABLE</td><td>คำอธิบายเพิ่มเติม</td></tr>
+        <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>DEFAULT true</td><td>สถานะเปิดใช้งาน</td></tr>
+        <tr><td><code>timestamps</code></td><td>TIMESTAMP</td><td>NULLABLE</td><td>created_at, updated_at</td></tr>
+      </table>
+
+      <h3>5.4 ตาราง <code>documents</code> (ข้อมูลหนังสือหลัก)</h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Index / Constraint</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td>BIGINT (PK)</td><td>Auto Increment</td><td>รหัสหนังสือภายใน</td></tr>
+        <tr><td><code>doc_number</code></td><td>VARCHAR(100)</td><td>INDEX</td><td>เลขรับหนังสือ เช่น '123/69'</td></tr>
+        <tr><td><code>doc_date</code></td><td>DATE</td><td>-</td><td>วันที่ลงในหนังสือ</td></tr>
+        <tr><td><code>current_status</code></td><td>VARCHAR(20)</td><td>DEFAULT 'in_progress'</td><td>'in_progress' หรือ 'completed'</td></tr>
+        <tr><td><code>created_by</code></td><td>BIGINT (FK)</td><td>REFERENCES users(id)</td><td>ผู้บันทึกหนังสือแรกเข้า</td></tr>
+        <tr><td><code>timestamps</code></td><td>TIMESTAMP</td><td>NULLABLE</td><td>created_at, updated_at</td></tr>
+      </table>
+
+      <h3>5.5 ตาราง <code>document_movements</code> (ประวัติรอบการเดินเรื่อง)</h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Index / Constraint</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td>BIGINT (PK)</td><td>Auto Increment</td><td>รหัสรอบการเดินเรื่อง</td></tr>
+        <tr><td><code>document_id</code></td><td>BIGINT (FK)</td><td>REFERENCES documents(id) ON DELETE CASCADE</td><td>อ้างอิงหนังสือ</td></tr>
+        <tr><td><code>route_id</code></td><td>BIGINT (FK)</td><td>REFERENCES routes(id)</td><td>อ้างอิง Route</td></tr>
+        <tr><td><code>round_number</code></td><td>INT</td><td>DEFAULT 1</td><td>รอบที่ (1, 2, 3...)</td></tr>
+        <tr><td><code>current_step_index</code></td><td>INT</td><td>DEFAULT 0</td><td>ลำดับ Index ขั้นตอนปัจจุบัน</td></tr>
+        <tr><td><code>current_step_name</code></td><td>VARCHAR(100)</td><td>NULLABLE</td><td>ชื่อขั้นตอนปัจจุบันที่ค้างอยู่</td></tr>
+        <tr><td><code>in_datetime</code></td><td>DATETIME</td><td>-</td><td>วันเวลาที่รับเข้ารอบนี้</td></tr>
+        <tr><td><code>in_by_user_id</code></td><td>BIGINT (FK)</td><td>REFERENCES users(id)</td><td>ผู้บันทึกรับเข้า</td></tr>
+        <tr><td><code>in_device_id</code></td><td>BIGINT (FK)</td><td>NULLABLE, REFERENCES registered_devices(id)</td><td>เครื่องที่กดรับเข้า</td></tr>
+        <tr><td><code>in_ip_address</code></td><td>VARCHAR(45)</td><td>NULLABLE</td><td>IP ที่กดรับเข้า</td></tr>
+        <tr><td><code>out_datetime</code></td><td>DATETIME</td><td>NULLABLE</td><td>วันเวลาที่ติ๊กออก</td></tr>
+        <tr><td><code>out_by_user_id</code></td><td>BIGINT (FK)</td><td>NULLABLE, REFERENCES users(id)</td><td>ผู้กดติ๊กออก</td></tr>
+        <tr><td><code>out_device_id</code></td><td>BIGINT (FK)</td><td>NULLABLE, REFERENCES registered_devices(id)</td><td>เครื่องที่กดติ๊กออก</td></tr>
+        <tr><td><code>out_ip_address</code></td><td>VARCHAR(45)</td><td>NULLABLE</td><td>IP ที่กดติ๊กออก</td></tr>
+        <tr><td><code>is_returned</code></td><td>BOOLEAN</td><td>DEFAULT false, INDEX</td><td>สถานะจบรอบหรือยัง (0=อยู่ระหว่างทาง, 1=ออกแล้ว)</td></tr>
+        <tr><td><code>timestamps</code></td><td>TIMESTAMP</td><td>NULLABLE</td><td>created_at, updated_at</td></tr>
+      </table>
+
+      <h3>5.6 ตาราง <code>movement_step_logs</code> (บันทึกเช็กพอยต์สำหรับ LINE LIFF Timeline)</h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Index / Constraint</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td>BIGINT (PK)</td><td>Auto Increment</td><td>รหัส Checkpoint Log</td></tr>
+        <tr><td><code>movement_id</code></td><td>BIGINT (FK)</td><td>REFERENCES document_movements(id) ON DELETE CASCADE</td><td>อ้างอิงรอบ</td></tr>
+        <tr><td><code>step_index</code></td><td>INT</td><td>-</td><td>ลำดับขั้นตอน</td></tr>
+        <tr><td><code>step_name</code></td><td>VARCHAR(100)</td><td>-</td><td>ชื่อขั้นตอน เช่น 'หอบ.', 'สารบรรณ'</td></tr>
+        <tr><td><code>status</code></td><td>VARCHAR(30)</td><td>-</td><td>'completed', 'current', 'pending', 'rollbacked'</td></tr>
+        <tr><td><code>action_by_user_id</code></td><td>BIGINT (FK)</td><td>NULLABLE, REFERENCES users(id)</td><td>ผู้ปรับปรุงสถานะ</td></tr>
+        <tr><td><code>action_datetime</code></td><td>DATETIME</td><td>-</td><td>วันเวลาที่อัปเดต</td></tr>
+        <tr><td><code>ip_address</code></td><td>VARCHAR(45)</td><td>NULLABLE</td><td>IP เครื่องที่ทำรายการ</td></tr>
+      </table>
+
+      <h3>5.7 ตาราง <code>activity_logs</code> (Audit Log การกระทำในระบบ & บันทึกการ Recovery)</h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Index / Constraint</th><th>Description</th></tr>
+        <tr><td><code>id</code></td><td>BIGINT (PK)</td><td>Auto Increment</td><td>รหัส Log</td></tr>
+        <tr><td><code>user_id</code></td><td>BIGINT (FK)</td><td>NULLABLE, REFERENCES users(id)</td><td>ผู้ทำรายการ</td></tr>
+        <tr><td><code>action</code></td><td>VARCHAR(50)</td><td>INDEX</td><td>เช่น 'batch_checkout', 'admin_step_rollback', 'admin_reopen_checkout'</td></tr>
+        <tr><td><code>description</code></td><td>TEXT</td><td>-</td><td>รายละเอียด พร้อมระบุเหตุผลในการกู้คืน</td></tr>
+        <tr><td><code>ip_address</code></td><td>VARCHAR(45)</td><td>-</td><td>IP เครื่องที่ใช้งาน</td></tr>
+        <tr><td><code>device_id</code></td><td>BIGINT (FK)</td><td>NULLABLE, REFERENCES registered_devices(id)</td><td>เครื่องที่ทำรายการ</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>วันเวลาที่บันทึก</td></tr>
+      </table>
+    </div>
+
+    <!-- SECTION 6: DUAL DATABASE & IIS CONFIGURATION -->
+    <div class="section-card">
+      <h2>6. การตั้งค่าสภาพแวดล้อม (Dual DB & IIS Web.config)</h2>
+      <pre><code>// config/database.production.php (วางเฉพาะบน Windows Server และ ignore ใน git)
+&lt;?php
+return [
+    'driver'    =&gt; 'mariadb',
+    'host'      =&gt; '127.0.0.1',
+    'port'      =&gt; '3306',
+    'database'  =&gt; 'flow_d_db',
+    'username'  =&gt; 'flow_d_admin',
+    'password'  =&gt; 'YourStrongPasswordHere!',
+    'charset'   =&gt; 'utf8mb4',
+    'collation' =&gt; 'utf8mb4_unicode_ci',
+    'prefix'    =&gt; '',
+    'strict'    =&gt; true,
+    'engine'    =&gt; 'InnoDB',
+];</code></pre>
+
+      <h3>การตั้งค่า Windows Server IIS (<code>public/web.config</code>)</h3>
+      <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;configuration&gt;
+    &lt;system.webServer&gt;
+        &lt;rewrite&gt;
+            &lt;rules&gt;
+                &lt;rule name="Laravel Rewrite" stopProcessing="true"&gt;
+                    &lt;match url="^" ignoreCase="false" /&gt;
+                    &lt;conditions logicalGrouping="MatchAll"&gt;
+                        &lt;add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" /&gt;
+                        &lt;add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" /&gt;
+                    &lt;/conditions&gt;
+                    &lt;action type="Rewrite" url="index.php" /&gt;
+                &lt;/rule&gt;
+            &lt;/rules&gt;
+        &lt;/rewrite&gt;
+        &lt;defaultDocument&gt;
+            &lt;files&gt;
+                &lt;clear /&gt;
+                &lt;add value="index.php" /&gt;
+            &lt;/files&gt;
+        &lt;/defaultDocument&gt;
+        &lt;security&gt;
+            &lt;requestFiltering&gt;
+                &lt;requestLimits maxAllowedContentLength="30000000" /&gt;
+            &lt;/requestFiltering&gt;
+        &lt;/security&gt;
+    &lt;/system.webServer&gt;
+&lt;/configuration&gt;</code></pre>
+    </div>
+
+    <!-- SECTION 7: ANTIGRAVITY MASTER PROMPT -->
+    <div class="section-card">
+      <h2>7. Master Prompt สำหรับสั่งงาน Antigravity (Copy & Paste)</h2>
+      <div class="prompt-box">
+        <h4>📋 Master Implementation Prompt for Antigravity AI:</h4>
+        <pre><code>Please implement the complete "Flow-D" system based on this specification file (v10):
+
+1. PC Desktop-First UI & Anti-Double Click:
+   - Primary Interface: Designed for PC widescreen monitors with high-density table view, dual-pane layout (intake on left, worklist on right), and keyboard shortcuts (Alt+N to intake, / to search, Enter to submit).
+   - Anti-Double Click Protection: 
+     * Frontend: Disable buttons immediately on click, show loading indicator ("กำลังบันทึก..."), and debounce form submissions.
+     * Backend: Wrap checkout and step updates in DB::transaction with Pessimistic Locking (`lockForUpdate`), returning idempotent responses if already processed.
+
+2. Document & Multi-round Business Logic:
+   - Inputs: Only `doc_number` (e.g. '123/69') and `doc_date` (NO document title).
+   - Re-entry Rule: If `doc_number` exists, verify that previous movement is returned (`is_returned == 1`).
+     * If not returned: reject with error "รอบก่อนหน้ายังไม่ติ๊กออก ไม่สามารถเปิดรอบใหม่ได้".
+     * If returned: auto-increment `round_number` and allow selecting same or different route.
+   - Point-to-Point Routes: 1-click check-out setting out_datetime = now(), out_by_user_id = Auth::id(), is_returned = 1.
+   - Multi-step Pipeline Routes: Advance step by step, log checkpoints to `movement_step_logs`, and mark complete at final step.
+
+3. Admin Recovery (Same-day Single Undo - Role 'admin' only):
+   - Constraint 1: Single step undo only (cannot rollback multiple steps at once).
+   - Constraint 2: Must be within the SAME calendar day (action date == today). Past days are locked permanently.
+   - Re-open Checked-out Document: Reset `is_returned = 0`, clear `out_datetime`, revert document status to `in_progress`.
+   - Step Rollback: Decrement `current_step_index`, revert `current_step_name` to previous step, and mark latest log as 'rollbacked'.
+   - Mandatory Reason Input: Prompt admin for a rollback reason and log into `activity_logs`.
+
+4. Batch Operations:
+   - Checkbox on movement tables with "Select All", allowing bulk check-out or bulk step forwarding wrapped in DB::transaction().
+
+5. LINE LIFF Mobile Companion (/liff/tracking):
+   - Mobile-first parcel-style delivery tracking UI for mobile users.
+   - Search by `doc_number`.
+   - Tabbed view for documents with multiple rounds: [Round 1 (Completed)], [Round 2 (Active)], defaulting to latest round.
+   - Checkpoint timeline: Step name, Thai Buddhist Era datetime (d/m/Y+543 H:i), updater name, and status (completed/current/pending).
+
+6. Authentication & Security:
+   - Login with `username` and `password` only (NO email field required).
+   - Support `remember` checkbox (Remember Me).
+   - Self-service password change menu for users (validating current password).
+   - Admin feature to directly change/reset password for any user in User Management.
+
+7. Management, Audit Logging & Environment:
+   - Windows Server IIS + FastCGI friendly (include public/web.config), PHP 8.3/8.5 compatible.
+   - Dual Database: SQLite for local dev and MariaDB with fallback to config/database.production.php.
+   - Device Fingerprint Middleware: Generates/reads permanent UUID cookie (`flow_device_token`), tracks client IP and device across networks.
+   - Thai Buddhist Era (พ.ศ.): Eloquent Accessors converting dates to d/m/(Y+543) and datetimes to d/m/(Y+543) H:i.</code></pre>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
