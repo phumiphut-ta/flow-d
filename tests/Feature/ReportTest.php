@@ -133,4 +133,3 @@ class ReportTest extends TestCase
         $responseRoute1->assertViewHas('totalCompleted', 1);
     }
 }
-
