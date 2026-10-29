@@ -151,7 +151,7 @@
                     <span>✏️</span>
                     <span>แก้ไขเส้นทางเดินเอกสาร</span>
                 </h3>
-                <form :action="'/admin/routes/' + editRoute.id" method="POST">
+                <form :action="'{{ url('/admin/routes') }}/' + editRoute.id" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="space-y-3 text-xs">

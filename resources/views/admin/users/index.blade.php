@@ -115,7 +115,7 @@
             <!-- Modal Card -->
             <div x-show="editModal" x-transition.scale.origin-center
                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border-2 border-blue-400 pointer-events-auto z-20">
-                <form :action="'/admin/users/' + editUser.id" method="POST">
+                <form :action="'{{ url('/admin/users') }}/' + editUser.id" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="bg-gradient-to-r from-blue-900 to-indigo-900 px-6 py-4 text-white flex items-center justify-between">
@@ -262,7 +262,7 @@
             <!-- Modal Card -->
             <div x-show="resetModal" x-transition.scale.origin-center
                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border-2 border-amber-400 pointer-events-auto z-20">
-                <form :action="'/admin/users/' + targetUser.id + '/reset-password'" method="POST">
+                <form :action="'{{ url('/admin/users') }}/' + targetUser.id + '/reset-password'" method="POST">
                     @csrf
                     <div class="bg-gradient-to-r from-amber-800 to-amber-900 px-6 py-4 text-white flex items-center justify-between">
                         <div class="flex items-center space-x-2">

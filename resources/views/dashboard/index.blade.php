@@ -565,7 +565,7 @@
         <div class="fixed inset-0 z-10 overflow-y-auto flex min-h-full items-center justify-center p-4 text-center sm:p-0 pointer-events-none">
             <div x-show="editDocModal" x-transition.scale.origin-center
                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border-2 border-blue-400 pointer-events-auto z-20">
-                <form :action="'/dashboard/movements/' + editDocMovementId + '/edit-doc-number'" method="POST"
+                <form :action="'{{ url('/dashboard/movements') }}/' + editDocMovementId + '/edit-doc-number'" method="POST"
                     @submit="if(editDocSubmitting || editDocReason.trim() === '' || newDocNumber.trim() === '') { $event.preventDefault(); return false; } editDocSubmitting = true;">
                     @csrf
                     <div class="bg-gradient-to-r from-blue-900 to-indigo-950 px-6 py-4 text-white flex items-center justify-between">
@@ -636,7 +636,7 @@
         <div class="fixed inset-0 z-10 overflow-y-auto flex min-h-full items-center justify-center p-4 text-center sm:p-0 pointer-events-none">
             <div x-show="voidModal" x-transition.scale.origin-center
                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border-2 border-red-400 pointer-events-auto z-20">
-                <form :action="'/dashboard/movements/' + voidMovementId + '/void'" method="POST"
+                <form :action="'{{ url('/dashboard/movements') }}/' + voidMovementId + '/void'" method="POST"
                     @submit="if(voidSubmitting || voidReason.trim() === '') { $event.preventDefault(); return false; } voidSubmitting = true;">
                     @csrf
                     <div class="bg-gradient-to-r from-red-900 to-rose-950 px-6 py-4 text-white flex items-center justify-between">
