@@ -464,6 +464,30 @@ sudo systemctl reload nginx
 
 ---
 
+### การตั้งค่าเว็บเซิร์ฟเวอร์ IIS (Windows Server / Shared wwwroot)
+
+ระบบ Flow-D ได้เตรียมไฟล์คอนฟิก **`web.config`** ไว้ให้ทั้งที่ **Root Directory** และโฟลเดอร์ **`public/`** ทำให้สามารถนำไปวางใน `C:\inetpub\wwwroot\flow-d` ร่วมกับเว็บอื่นๆ บน IIS ได้ทันที โดยระบบจะ Rewrite เข้าสู่โฟลเดอร์ `public` อัตโนมัติและป้องกันการดาวน์โหลดไฟล์ความลับ (`.env`, `.git`) โดยตรง
+
+#### 1. สิทธิ์การเขียนไฟล์ (Folder Permissions)
+เปิด Command Prompt (Run as Administrator) แล้วให้สิทธิ์แก่กลุ่ม `IIS_IUSRS`:
+```cmd
+icacls "C:\inetpub\wwwroot\flow-d\storage" /grant "IIS_IUSRS":(OI)(CI)M /T
+icacls "C:\inetpub\wwwroot\flow-d\bootstrap\cache" /grant "IIS_IUSRS":(OI)(CI)M /T
+```
+
+#### 2. การตั้งค่า `.env` สำหรับ Sub-path บน IIS
+หากเข้าใช้งานผ่าน `http://YOUR_SERVER_IP/flow-d`:
+```env
+APP_URL=http://YOUR_SERVER_IP/flow-d
+ASSET_URL=/flow-d
+```
+
+#### 3. วิธีการนำขึ้น IIS (เลือกได้ 2 วิธี)
+* **วิธีที่ 1 (แนะนำ - Add Application):** ใน IIS Manager คลิกขวาที่ `Default Web Site` -> **Add Application...** -> กำหนด Alias เป็น `flow-d` และ Physical Path ชี้ไปที่ `C:\inetpub\wwwroot\flow-d\public`
+* **วิธีที่ 2 (วางโฟลเดอร์รวมตรงๆ):** วางโฟลเดอร์ `flow-d` ลงใน `C:\inetpub\wwwroot` ได้เลย Root `web.config` ที่มาพร้อมกับระบบจะดักจับและส่ง Request ทั้งหมดเข้าสู่ `public/` โดยอัตโนมัติอย่างปลอดภัย
+
+---
+
 ## บัญชีผู้ใช้งานเริ่มต้น (Default Credentials)
 
 ข้อมูลบัญชีผู้ใช้งานที่สร้างจาก `DatabaseSeeder`:

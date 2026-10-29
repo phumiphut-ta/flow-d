@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.2] - 2026-10-29
+
+### Added
+- **Windows Server IIS Shared Directory Support**:
+  - เพิ่ม Root `web.config` รองรับการนำโฟลเดอร์โปรเจกต์ไปวางใน `C:\inetpub\wwwroot\flow-d` ร่วมกับเว็บอื่นๆ บน IIS ได้ทันที
+  - เพิ่มกฎ Rewrite อัตโนมัติส่ง Request เข้าสู่โฟลเดอร์ `public/` โดยไม่ต้องย้ายหรือเปลี่ยนโครงสร้างโฟลเดอร์
+  - เสริมการป้องกันความปลอดภัย (Direct Access Protection) ปิดกั้นการดาวน์โหลดไฟล์ `.env`, `.git`, `composer.json` และไฟล์สำคัญจากภายนอก
+  - เพิ่มการรองรับ `ASSET_URL` ใน `config/app.php` และ `.env.example` เพื่อให้โหลด Vite Assets (CSS/JS) ใน Sub-path `/flow-d` ได้อย่างถูกต้อง
+
+---
+
 ## [1.3.1] - 2026-10-29
 
 ### Changed
@@ -58,3 +69,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Same-Day Admin Rollback**: สิทธิ์ผู้ดูแลระบบสามารถถอยขั้นตอนเอกสารกลับได้ในวันเดียวกันหากมีการส่งผิด
 - **Mobile & LINE LIFF Tracking Companion**: หน้าจอติดตามสถานะหนังสือแบบเรียลไทม์ผ่านสมาร์ตโฟน โดยไม่ต้องเข้าสู่ระบบ
 - **Device & Workstation Tracking**: ระบบติดตามอุปกรณ์ที่ใช้งานผ่าน UUID Cookie Device Token
+
