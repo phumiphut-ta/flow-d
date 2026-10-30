@@ -24,6 +24,7 @@
    - [การตั้งค่าเว็บเซิร์ฟเวอร์ (Nginx Configuration)](#การตั้งค่าเว็บเซิร์ฟเวอร์-nginx-configuration)
 6. [บัญชีผู้ใช้งานเริ่มต้น (Default Credentials)](#บัญชีผู้ใช้งานเริ่มต้น-default-credentials)
 7. [คีย์ลัดการใช้งานสำหรับเจ้าหน้าที่ (Keyboard Shortcuts)](#คีย์ลัดการใช้งานสำหรับเจ้าหน้าที่-keyboard-shortcuts)
+8. [คำถามที่พบบ่อยและการแก้ไขปัญหา (Troubleshooting & FAQ)](#คำถามที่พบบ่อยและการแก้ไขปัญหา-troubleshooting--faq)
 
 ---
 
@@ -509,6 +510,21 @@ ASSET_URL=/flow-d
 - <kbd>Alt</kbd> + <kbd>N</kbd> หรือ <kbd>/</kbd> : โฟกัสไปที่ช่อง "เลขที่หนังสือ" ทันที
 - <kbd>Enter</kbd> (ขณะอยู่ในช่องกรอก) : บันทึกรับหนังสือเข้าสู่ระบบทันที (Intake)
 - การใช้ร่วมกับ **Barcode / QR-Code Scanner**: ตั้งค่าเครื่องยิงให้ออกคำสั่ง Enter ต่อท้ายรหัส จะทำให้รับหนังสือเข้าได้แบบ 1-Click ทันที
+
+---
+
+## คำถามที่พบบ่อยและการแก้ไขปัญหา (Troubleshooting & FAQ)
+
+ระบบได้รวบรวมปัญหาที่พบบ่อยและวิธีการแก้ไขอย่างละเอียดไว้ในคู่มือ:  
+👉 **[อ่านเอกสาร FAQ & Troubleshooting แบบเต็มที่นี่ (FAQ.md)](FAQ.md)**
+
+### หัวข้อยอดนิยม:
+- **IIS 404 Not Found / Subfolder Redirect**: การตั้งค่า Physical Path ให้ชี้ไปที่ `public` และการแปลงเป็น Application ใน IIS
+- **Error 500 `tempnam()`**: การกำหนดสิทธิ์โฟลเดอร์ `storage` และ `bootstrap/cache` ให้แก่ `IIS_IUSRS` / `IUSR`
+- **Error 500 `MissingAppKeyException`**: การรันคำสั่ง `php artisan key:generate`
+- **MariaDB `auth_gssapi_client`**: การสร้างผู้ใช้ฐานข้อมูลที่ใช้ Password Authentication
+- **เวลาไม่ตรง (Timezone)**: การตั้งค่า `APP_TIMEZONE=Asia/Bangkok` (UTC+7)
+- **การลืมรหัสผ่าน Admin**: การรีเซ็ตรหัสผ่านผ่าน `php artisan tinker`
 
 ---
 

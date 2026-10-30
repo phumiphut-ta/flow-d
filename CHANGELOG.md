@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.3] - 2026-10-30
+
+### Added
+- **Comprehensive Troubleshooting & FAQ (`FAQ.md`)**:
+  - คู่มือแก้ไขปัญหาที่พบบ่อย 6 หมวดหมู่ (การตั้งค่า IIS, สิทธิ์โฟลเดอร์ Error 500, App Key, MariaDB GSSAPI Authentication, URL & Assets, Timezone)
+- **Timezone Support**:
+  - กำหนดค่าเริ่มต้นของระบบเป็น `Asia/Bangkok` (UTC+7) ใน `config/app.php` และรองรับ `APP_TIMEZONE` ใน `.env`
+
+---
+
 ## [1.3.2] - 2026-10-29
 
 ### Added
