@@ -66,11 +66,42 @@
         });
     }
 }">
+    <!-- Explicit Layout Styles to guarantee side-by-side display regardless of asset compilation/cache -->
+    <style>
+        .dual-pane-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            align-items: flex-start;
+            width: 100%;
+        }
+        .left-pane-column {
+            width: 320px;
+            min-width: 280px;
+            max-width: 340px;
+            flex-shrink: 0;
+        }
+        .right-pane-column {
+            flex: 1 1 0%;
+            min-width: 0;
+            min-height: 550px;
+        }
+        @media (max-width: 820px) {
+            .dual-pane-layout {
+                flex-direction: column;
+            }
+            .left-pane-column {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+
     <!-- Dual-Pane Layout: Left (~25% / w-72 to w-80), Right (Full remaining width min-w-0) -->
-    <div class="flex flex-col md:flex-row gap-4 items-start w-full">
+    <div class="dual-pane-layout flex flex-col md:flex-row gap-4 items-start w-full">
 
         <!-- LEFT PANE: Narrower (~24-25% / w-72 to w-80) -->
-        <div class="w-full md:w-72 lg:w-80 shrink-0 flex flex-col space-y-3">
+        <div class="left-pane-column w-full md:w-72 lg:w-80 shrink-0 flex flex-col space-y-3">
             <!-- Fast Intake Box -->
             <div class="bg-white border-2 border-blue-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 px-4 py-2.5 text-white flex items-center justify-between">
@@ -188,7 +219,7 @@
         </div>
 
         <!-- RIGHT PANE: Worklist Table (Always visible, min-w-0, min-h-[500px]) -->
-        <div class="w-full md:flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[500px]">
+        <div class="right-pane-column w-full md:flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[500px]">
             <!-- Mode Tabs: Active Worklist vs Today's Completed -->
             <div class="flex items-center border-b-2 border-slate-200 bg-slate-100 px-3 pt-2 gap-2 shrink-0">
                 <a href="{{ route('dashboard', array_filter(['tab' => 'active', 'route_id' => $currentRouteFilter, 'step' => $currentStepFilter, 'search' => $currentSearch])) }}"
