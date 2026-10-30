@@ -33,12 +33,25 @@ class DashboardController extends Controller
                 ->orderBy('out_datetime', 'desc');
         } else {
             $query->where('is_returned', false)
-                ->orderBy('in_datetime', 'asc');
+                ->orderBy('in_datetime', 'desc')
+                ->orderBy('id', 'desc');
         }
 
         $routeId = $request->integer('route_id');
         if ($routeId > 0) {
             $query->where('route_id', $routeId);
+        }
+
+        $availableSteps = DocumentMovement::where('is_returned', false)
+            ->whereNotNull('current_step_name')
+            ->distinct()
+            ->orderBy('current_step_name')
+            ->pluck('current_step_name')
+            ->toArray();
+
+        $stepFilter = $request->filled('step') ? trim($request->string('step')) : null;
+        if ($stepFilter) {
+            $query->where('current_step_name', $stepFilter);
         }
 
         if ($request->filled('search')) {
@@ -66,6 +79,8 @@ class DashboardController extends Controller
             'todayIntake' => $todayIntake,
             'todayCompleted' => $todayCompleted,
             'currentRouteFilter' => $routeId > 0 ? $routeId : null,
+            'availableSteps' => $availableSteps,
+            'currentStepFilter' => $stepFilter,
             'currentSearch' => $request->filled('search') ? trim($request->string('search')) : '',
             'activeTab' => $tab,
         ]);
@@ -78,20 +93,21 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'doc_number' => ['required', 'string', 'max:100'],
-            'doc_date' => ['required', 'date'],
+            'doc_date' => ['nullable', 'date'],
             'route_id' => ['required', 'integer', 'exists:routes,id'],
         ], [
             'doc_number.required' => 'กรุณากรอกเลขรับหนังสือ',
-            'doc_date.required' => 'กรุณาเลือกวันที่หนังสือ',
             'route_id.required' => 'กรุณาเลือกเส้นทางเดินเอกสาร',
         ]);
+
+        $docDate = ! empty($validated['doc_date']) ? $validated['doc_date'] : now()->toDateString();
 
         $device = $request->attributes->get('registered_device');
         $ip = (string) $request->ip();
 
         $result = $this->movementService->intake(
             $validated['doc_number'],
-            $validated['doc_date'],
+            $docDate,
             (int) $validated['route_id'],
             $request->user(),
             $device,
