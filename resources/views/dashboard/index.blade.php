@@ -1,23 +1,12 @@
 @extends('layouts.app', ['title' => 'สมุดรับ-งานค้าง (Dual-Pane)'])
 
 @section('content')
-<div class="h-full flex flex-col space-y-2" x-data="{
+<div class="space-y-3" x-data="{
     selectedIds: [],
     selectAll: false,
     intakeSubmitting: false,
     batchSubmitting: false,
     actionSubmittingId: null,
-
-    // Real-time search query
-    searchQuery: '{{ addslashes($currentSearch) }}',
-
-    rowMatchesSearch(docNum, stepName, routeName) {
-        if (!this.searchQuery || this.searchQuery.trim() === '') return true;
-        const q = this.searchQuery.toLowerCase().trim();
-        return (docNum && docNum.toLowerCase().includes(q))
-            || (stepName && stepName.toLowerCase().includes(q))
-            || (routeName && routeName.toLowerCase().includes(q));
-    },
 
     // Edit Doc Number modal state
     editDocModal: false,
@@ -77,11 +66,11 @@
         });
     }
 }">
-    <!-- Dual-Pane Area: Left (Narrower) Quick Intake + Stats, Right (Wider) Compact Worklist -->
-    <div class="flex-1 flex flex-col lg:flex-row gap-3 min-h-0">
+    <!-- Dual-Pane Layout: Left (~25% / w-72 to w-80), Right (Full remaining width min-w-0) -->
+    <div class="flex flex-col md:flex-row gap-4 items-start w-full">
 
         <!-- LEFT PANE: Narrower (~24-25% / w-72 to w-80) -->
-        <div class="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col space-y-3">
+        <div class="w-full md:w-72 lg:w-80 shrink-0 flex flex-col space-y-3">
             <!-- Fast Intake Box -->
             <div class="bg-white border-2 border-blue-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 px-4 py-2.5 text-white flex items-center justify-between">
@@ -198,8 +187,8 @@
             </div>
         </div>
 
-        <!-- RIGHT PANE: Wider, High-Density Compact Worklist (lg:flex-1) -->
-        <div class="w-full lg:flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+        <!-- RIGHT PANE: Worklist Table (Always visible, min-w-0, min-h-[500px]) -->
+        <div class="w-full md:flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[500px]">
             <!-- Mode Tabs: Active Worklist vs Today's Completed -->
             <div class="flex items-center border-b-2 border-slate-200 bg-slate-100 px-3 pt-2 gap-2 shrink-0">
                 <a href="{{ route('dashboard', array_filter(['tab' => 'active', 'route_id' => $currentRouteFilter, 'step' => $currentStepFilter, 'search' => $currentSearch])) }}"
@@ -217,7 +206,7 @@
 
             <!-- Filter & Search Toolbar -->
             <div class="p-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
-                <form x-ref="searchForm" method="GET" action="{{ route('dashboard') }}" class="flex flex-wrap items-center gap-2 flex-1">
+                <form id="search_form" method="GET" action="{{ route('dashboard') }}" class="flex flex-wrap items-center gap-2 flex-1">
                     <input type="hidden" name="tab" value="{{ $activeTab }}">
 
                     <!-- Route Filter -->
@@ -244,16 +233,31 @@
                     </select>
                     @endif
 
-                    <!-- Instant Quick Search Box (HotKey: /) -->
+                    <!-- Instant Real-Time Quick Search Box (HotKey: /) -->
                     <div class="relative flex-1 min-w-[200px] max-w-xs">
-                        <input type="text" id="quick_search_input" name="search" x-model="searchQuery"
-                            placeholder="ค้นหาเลขรับทันที... (กด /)"
+                        <input type="text" id="quick_search_input" name="search" value="{{ $currentSearch }}"
+                            placeholder="พิมพ์ค้นหาเลขรับทันที... (กด /)"
                             autocomplete="off"
+                            oninput="
+                                const q = this.value.toLowerCase().trim();
+                                document.querySelectorAll('.worklist-row').forEach(function(r) {
+                                    const text = (r.getAttribute('data-search') || '').toLowerCase();
+                                    r.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
+                                });
+                                const clearBtn = document.getElementById('search_clear_btn');
+                                if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+                            "
                             class="w-full h-9 pl-8 pr-7 rounded-lg border border-slate-300 text-xs font-semibold focus:border-blue-500 focus:ring-0 text-slate-900">
                         <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">🔍</span>
-                        <button type="button" x-show="searchQuery && searchQuery.trim().length > 0"
-                            @click="searchQuery = ''; if ('{{ $currentSearch }}') { $refs.searchForm.submit(); }"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 font-bold text-[10px] bg-slate-200 hover:bg-slate-300 w-4 h-4 rounded-full flex items-center justify-center cursor-pointer"
+                        <button type="button" id="search_clear_btn"
+                            style="display: {{ $currentSearch ? 'flex' : 'none' }};"
+                            onclick="
+                                document.getElementById('quick_search_input').value = '';
+                                document.querySelectorAll('.worklist-row').forEach(function(r) { r.style.display = ''; });
+                                this.style.display = 'none';
+                                if ('{{ $currentSearch }}') { document.getElementById('search_form').submit(); }
+                            "
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 font-bold text-[10px] bg-slate-200 hover:bg-slate-300 w-4 h-4 rounded-full items-center justify-center cursor-pointer"
                             title="ล้างข้อความค้นหา">
                             ✕
                         </button>
@@ -313,10 +317,10 @@
             </div>
             @endif
 
-            <!-- High-Density Compact Data Grid (Sticky Header) -->
-            <div class="flex-1 overflow-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-100 text-slate-800 uppercase font-bold text-xs sticky top-0 z-10 border-b border-slate-200 shadow-xs">
+            <!-- High-Density Compact Data Grid -->
+            <div class="overflow-x-auto w-full">
+                <table id="worklist_table" class="w-full text-left border-collapse">
+                    <thead class="bg-slate-100 text-slate-800 uppercase font-bold text-xs border-b border-slate-200">
                         @if($activeTab === 'completed')
                         <tr>
                             <th class="py-2.5 px-3">เลขรับ</th>
@@ -347,8 +351,8 @@
                     <tbody class="divide-y divide-slate-200 text-slate-800">
                         @forelse($movements as $m)
                             @if($activeTab === 'completed')
-                            <tr x-show="rowMatchesSearch('{{ addslashes($m->document->doc_number) }}', '{{ addslashes($m->current_step_name) }}', '{{ addslashes($m->route->route_name) }}')"
-                                class="hover:bg-emerald-50/60 transition {{ $loop->even ? 'bg-slate-50/60' : 'bg-white' }}">
+                            <tr class="worklist-row hover:bg-emerald-50/60 transition {{ $loop->even ? 'bg-slate-50/60' : 'bg-white' }}"
+                                data-search="{{ $m->document->doc_number }} {{ $m->current_step_name }} {{ $m->route->route_name }} {{ $m->outUser?->name ?? '' }}">
                                 <!-- Doc Number & Round -->
                                 <td class="py-2 px-3 whitespace-nowrap">
                                     <div class="flex items-center space-x-1.5">
@@ -426,8 +430,8 @@
                                 </td>
                             </tr>
                             @else
-                            <tr x-show="rowMatchesSearch('{{ addslashes($m->document->doc_number) }}', '{{ addslashes($m->current_step_name) }}', '{{ addslashes($m->route->route_name) }}')"
-                                class="hover:bg-blue-50/70 transition {{ $loop->even ? 'bg-slate-50/60' : 'bg-white' }}">
+                            <tr class="worklist-row hover:bg-blue-50/70 transition {{ $loop->even ? 'bg-slate-50/60' : 'bg-white' }}"
+                                data-search="{{ $m->document->doc_number }} {{ $m->current_step_name }} {{ $m->route->route_name }} {{ $m->inUser?->name ?? '' }}">
                                 <!-- Checkbox -->
                                 <td class="py-2 px-2.5 text-center">
                                     <input type="checkbox" value="{{ $m->id }}" x-model.number="selectedIds"
